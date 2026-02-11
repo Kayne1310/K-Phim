@@ -1,0 +1,246 @@
+# K-Phim — Website Xem Phim Online (Netflix-style UI)
+
+Xây dựng website xem phim online miễn phí với giao diện hiện đại giống Netflix, sử dụng **Next.js 14**, dữ liệu từ **OPhim API**, video player dùng **iframe embed**, không yêu cầu đăng nhập.
+
+---
+
+## Tổng Quan Kiến Trúc
+
+```mermaid
+graph LR
+    A[Next.js 14 App Router] --> B[OPhim API]
+    A --> C[iframe Player]
+    A --> D[Client Components]
+    
+    subgraph Pages
+        E[Trang Chủ]
+        F[Chi Tiết Phim]
+        G[Xem Phim]
+        H[Danh Sách / Lọc]
+        I[Tìm Kiếm]
+    end
+    
+    A --> Pages
+```
+
+---
+
+## Proposed Changes
+
+### 1. Khởi tạo dự án Next.js 14
+
+#### [NEW] Khởi tạo project
+
+- Dùng `npx create-next-app@14` với App Router, TypeScript, ESLint
+- Cài thêm: `swiper` (carousel), `@heroicons/react` (icons), `@reduxjs/toolkit`, `react-redux`
+- Logo: **K-Phim**
+- Redux + `localStorage`: lưu lịch sử xem, phim yêu thích, chuẩn bị cho tích hợp auth sau này
+- Cấu hình `next.config.js` cho phép load ảnh từ domain `img.ophim.cc`
+
+---
+
+### 2. Cấu trúc thư mục
+
+```
+d:\K-Phim\
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx            # Root layout (header, footer, font)
+│   │   ├── page.tsx              # Trang chủ
+│   │   ├── phim/
+│   │   │   └── [slug]/
+│   │   │       ├── page.tsx      # Chi tiết phim
+│   │   │       └── xem/
+│   │   │           └── page.tsx  # Xem phim (iframe player)
+│   │   ├── danh-sach/
+│   │   │   └── [slug]/
+│   │   │       └── page.tsx      # Danh sách phim (bộ lọc)
+│   │   ├── the-loai/
+│   │   │   └── [slug]/
+│   │   │       └── page.tsx      # Phim theo thể loại
+│   │   ├── quoc-gia/
+│   │   │   └── [slug]/
+│   │   │       └── page.tsx      # Phim theo quốc gia
+│   │   ├── nam/
+│   │   │   └── [year]/
+│   │   │       └── page.tsx      # Phim theo năm
+│   │   └── tim-kiem/
+│   │       └── page.tsx          # Trang tìm kiếm
+│   ├── components/
+│   │   ├── Header.tsx            # Navbar cố định (logo, menu, search)
+│   │   ├── Footer.tsx            # Footer
+│   │   ├── HeroBanner.tsx        # Banner lớn trang chủ (auto-slide)
+│   │   ├── MovieRow.tsx          # Hàng phim cuộn ngang (Netflix-style)
+│   │   ├── MovieCard.tsx         # Card phim (poster, tên, năm, chất lượng)
+│   │   ├── MovieGrid.tsx         # Grid phim (cho trang danh sách)
+│   │   ├── VideoPlayer.tsx       # iframe embed player
+│   │   ├── EpisodeList.tsx       # Danh sách tập phim
+│   │   ├── FilterBar.tsx         # Thanh bộ lọc (thể loại, quốc gia, năm)
+│   │   ├── Pagination.tsx        # Phân trang
+│   │   ├── SearchBar.tsx         # Thanh tìm kiếm
+│   │   ├── MovieInfo.tsx         # Thông tin chi tiết phim
+│   │   └── Skeleton.tsx          # Loading skeleton
+│   ├── service/
+│   │   └── api.ts                # Hàm gọi OPhim API (fetch wrapper)
+│   ├── store/
+│   │   ├── store.ts              # Redux store configuration
+│   │   ├── provider.tsx          # Redux Provider wrapper
+│   │   └── slices/
+│   │       └── movieSlice.ts     # Movie state (watchHistory, favorites)
+│   ├── types/
+│   │   └── movie.ts              # TypeScript interfaces cho API response
+│   └── styles/
+│       └── globals.css           # CSS toàn cục, theme Netflix dark
+├── public/
+│   └── logo.svg                  # Logo K-Phim
+├── .env.development              # API base URL cho dev
+├── .env.production               # API base URL cho production
+├── next.config.js
+├── package.json
+└── tsconfig.json
+```
+
+---
+
+### 3. Chi tiết từng trang & component
+
+#### 3.1 API Layer — `src/lib/api.ts`
+
+| Hàm | API Endpoint | Mô tả |
+|-----|-------------|-------|
+| `getHome()` | `/v1/api/home` | Dữ liệu trang chủ |
+
+> [!NOTE]
+> API base URL lấy từ `process.env.NEXT_PUBLIC_API_URL` (`.env.development` / `.env.production`)
+| `getMovieList(slug, params)` | `/v1/api/danh-sach/[slug]` | Danh sách phim theo slug + bộ lọc |
+| `getMovieDetail(slug)` | `/v1/api/phim/[slug]` | Chi tiết phim + episodes |
+| `searchMovies(keyword, params)` | `/v1/api/tim-kiem` | Tìm kiếm phim |
+| `getCategories()` | `/v1/api/the-loai` | Danh sách thể loại |
+| `getMoviesByCategory(slug, params)` | `/v1/api/the-loai/[slug]` | Phim theo thể loại |
+| `getCountries()` | `/v1/api/quoc-gia` | Danh sách quốc gia |
+| `getMoviesByCountry(slug, params)` | `/v1/api/quoc-gia/[slug]` | Phim theo quốc gia |
+| `getYears()` | `/v1/api/nam-phat-hanh` | Danh sách năm |
+| `getMoviesByYear(year, params)` | `/v1/api/nam-phat-hanh/[year]` | Phim theo năm |
+
+---
+
+#### 3.2 Trang Chủ — `src/app/page.tsx`
+
+- **HeroBanner**: Hiển thị 5 phim nổi bật từ `items`, auto-slide, backdrop lớn full-width, gradient overlay, nút "Xem ngay"
+- **MovieRow** × nhiều hàng: "Phim Mới Cập Nhật", "Phim Bộ", "Phim Lẻ", "Phim Hoạt Hình"... cuộn ngang bằng Swiper
+- Mỗi `MovieCard` hiển thị: poster, tên phim, badge chất lượng (HD/FHD), badge ngôn ngữ (Vietsub/Thuyết minh), năm
+- Hover effect: scale up, hiện thêm thông tin
+
+---
+
+#### 3.3 Chi Tiết Phim — `src/app/phim/[slug]/page.tsx`
+
+- Backdrop poster lớn (blur background)
+- Thông tin: tên, tên gốc, năm, thời lượng, chất lượng, ngôn ngữ, đạo diễn, diễn viên
+- Mô tả nội dung
+- Danh sách thể loại (chips/tags)
+- Quốc gia, điểm IMDB/TMDB
+- **EpisodeList**: Grid các tập phim, click → chuyển sang trang xem
+- Nút "Xem Phim" nổi bật
+
+---
+
+#### 3.4 Xem Phim — `src/app/phim/[slug]/xem/page.tsx`
+
+- **VideoPlayer**: `<iframe>` embed từ `link_embed` trong API response
+  - Full-width, tỷ lệ 16:9, responsive
+  - `allowFullScreen`, `allow="autoplay; encrypted-media"`
+- **EpisodeList** bên dưới: chọn server + chọn tập
+- Thông tin phim tóm tắt bên dưới player
+
+---
+
+#### 3.5 Danh Sách & Bộ Lọc — `src/app/danh-sach/[slug]/page.tsx`
+
+- **FilterBar**: dropdown thể loại, quốc gia, năm, sắp xếp
+- **MovieGrid**: hiển thị dạng grid 5-6 cột
+- **Pagination**: phân trang dưới cùng
+- Slugs hỗ trợ: `phim-moi`, `phim-bo`, `phim-le`, `tv-shows`, `hoat-hinh`, `phim-vietsub`...
+
+---
+
+#### 3.6 Tìm Kiếm — `src/app/tim-kiem/page.tsx`
+
+- Search query từ URL params `?keyword=...`
+- **Debounce 500ms**: tránh gọi API quá nhiều khi người dùng đang gõ
+- Hiển thị kết quả dạng grid + pagination
+- Minimum 2 ký tự
+
+---
+
+### 4. Thiết kế UI/UX (Netflix-style)
+
+#### Color Palette
+| Token | Giá trị | Dùng cho |
+|-------|---------|----------|
+| `--bg-primary` | `#141414` | Nền chính |
+| `--bg-secondary` | `#181818` | Card, modal |
+| `--bg-hover` | `#232323` | Hover state |
+| `--text-primary` | `#FFFFFF` | Text chính |
+| `--text-secondary` | `#B3B3B3` | Text phụ |
+| `--accent` | `#E50914` | Nút chính, logo (đỏ Netflix) |
+| `--accent-hover` | `#F40612` | Hover accent |
+| `--gradient-hero` | `linear-gradient(to top, #141414, transparent)` | Hero overlay |
+
+#### Typography
+- Font: **Inter** (Google Fonts)
+- Hero title: `3rem`, bold
+- Movie title: `0.9rem`, medium
+- Body: `0.875rem`, regular
+
+#### Animations & Effects
+- Card hover: `transform: scale(1.08)`, `transition: 0.3s ease`
+- Swiper row: smooth horizontal scroll, peek next card
+- Skeleton loading: shimmer animation
+- Page transitions: fade-in
+- Backdrop blur: chi tiết phim
+
+---
+
+### 5. Responsive Design
+
+| Breakpoint | Cột Grid | MovieRow cards visible |
+|------------|----------|----------------------|
+| Mobile `< 640px` | 2 cột | 2 |
+| Tablet `640-1024px` | 3-4 cột | 4 |
+| Desktop `> 1024px` | 5-6 cột | 6 |
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> **Không cần login**: Website hoàn toàn public, không có hệ thống auth.
+
+> [!IMPORTANT]
+> **Video Player dùng iframe**: Sử dụng `link_embed` từ API response để nhúng player. Không cần tự build video player.
+
+> [!WARNING]
+> **CORS & API**: OPhim API có thể có giới hạn CORS. Nếu gặp vấn đề, sẽ cần proxy qua Next.js API Routes (`/api/proxy`).
+
+> [!NOTE]
+> **Ảnh CDN**: Poster/thumb sẽ được load từ `https://img.ophim.cc/uploads/movies/` + `thumb_url`/`poster_url`.
+
+---
+
+## Verification Plan
+
+### Automated Tests (Browser)
+1. **Kiểm tra trang chủ**: Mở `http://localhost:3000`, xác nhận hero banner và movie rows hiển thị
+2. **Kiểm tra chi tiết phim**: Click vào một phim, xác nhận thông tin hiển thị đúng
+3. **Kiểm tra xem phim**: Bấm "Xem Phim", xác nhận iframe player load
+4. **Kiểm tra tìm kiếm**: Nhập keyword, xác nhận kết quả
+5. **Kiểm tra bộ lọc**: Chọn thể loại/quốc gia, xác nhận phim đổi
+6. **Kiểm tra responsive**: Resize browser, xác nhận layout thay đổi
+
+### Manual Verification
+- Chạy `npm run dev` và truy cập `http://localhost:3000`
+- Kiểm tra trực quan giao diện dark theme Netflix-style
+- Test navigation giữa các trang
+- Test iframe player có load video không
+- Test trên mobile viewport

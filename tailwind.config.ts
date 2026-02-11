@@ -9,8 +9,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        background: "var(--bg-primary)",
+        foreground: "var(--text-primary)",
+        primary: "var(--bg-primary)",
+        secondary: "var(--bg-secondary)",
+        accent: "var(--accent)",
+        "accent-hover": "var(--accent-hover)",
+        "text-secondary": "var(--text-secondary)",
+        "bg-hover": "var(--bg-hover)",
+      },
+      backgroundImage: {
+        "gradient-hero": "var(--gradient-hero)",
       },
     },
   },
