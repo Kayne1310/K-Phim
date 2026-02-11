@@ -44,7 +44,7 @@ export default async function CountryPage({ params, searchParams }: Props) {
         />
       </div>
     );
-  } catch (error) {
+  } catch {
     return (
       <div className="container mx-auto px-4 md:px-12 py-20 min-h-screen">
         <FilterBar />

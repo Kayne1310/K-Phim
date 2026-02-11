@@ -16,14 +16,14 @@ export default async function Home() {
       upcoming,
       trending
     ] = await Promise.all([
-      movieApi.getHome().catch(e => ({ data: { items: [] } })),
-      movieApi.getSeriesMovies().catch(e => ({ data: { items: [] } })),
-      movieApi.getSingleMovies().catch(e => ({ data: { items: [] } })),
-      movieApi.CartoonMovies().catch(e => ({ data: { items: [] } })),
-      movieApi.TvShows().catch(e => ({ data: { items: [] } })),
-      movieApi.getNewMovies().catch(e => ({ data: { items: [] } })),
-      movieApi.getUpcoming().catch(e => ({ data: { items: [] } })),
-      movieApi.getTopTrending().catch(e => ({ data: { items: [] } }))
+      movieApi.getMoviesByCountry('trung-quoc').catch(() => ({ data: { items: [] } })),
+      movieApi.getSeriesMovies().catch(() => ({ data: { items: [] } })),
+      movieApi.getSingleMovies().catch(() => ({ data: { items: [] } })),
+      movieApi.CartoonMovies().catch(() => ({ data: { items: [] } })),
+      movieApi.TvShows().catch(() => ({ data: { items: [] } })),
+      movieApi.getNewMovies().catch(() => ({ data: { items: [] } })),
+      movieApi.getUpcoming().catch(() => ({ data: { items: [] } })),
+      movieApi.getTopTrending().catch(() => ({ data: { items: [] } }))
     ]);
 
     // Use homeData items for HeroBanner if available, otherwise fallback to phimMoi items
@@ -34,11 +34,6 @@ export default async function Home() {
         <HeroBanner movies={heroMovies} />
         
         <div className="relative z-10 flex flex-col gap-8 md:gap-12 mt-4 md:-mt-32">
-          {/* Overwrite style in MovieRow to handle z-index and padding if needed, 
-              but basically we want the rows to start overlaying the banner bottom or just below.
-              Netflix styles: rows start overlapping the banner gradient.
-          */}
-          
           <MovieRow title="Phim Mới Cập Nhật" movies={phimMoi.data?.items} linkTo="/danh-sach/phim-moi" />
           <MovieRow title="Top Phim Xem Nhiều" movies={trending.data?.items} linkTo="/danh-sach/phim-hot" />
           <MovieRow title="Phim Bộ" movies={phimBo.data?.items} linkTo="/danh-sach/phim-bo" />

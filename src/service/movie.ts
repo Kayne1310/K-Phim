@@ -22,6 +22,7 @@ export interface MovieDetailResponse {
 }
 
 // Helper to cast Axios response to data
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fetch = async <T>(url: string, params?: any): Promise<ApiResponse<T>> => {
     // axiosClient interceptor returns data directly, so we cast it to ApiResponse<T>
     return axiosClient.get(url, { params }) as unknown as Promise<ApiResponse<T>>;
@@ -32,7 +33,7 @@ export const movieApi = {
         return fetch<MovieListResponse>('/v1/api/home');
     },
 
-    getMovieList: (slug: string, page = 1, limit = 24) => {
+    getMovieList: (slug: string, page = 1, limit = 25) => {
         return fetch<MovieListResponse>(`/v1/api/danh-sach/${slug}`, { page, limit });
     },
 
@@ -40,52 +41,55 @@ export const movieApi = {
         return fetch<MovieDetailResponse>(`/v1/api/phim/${slug}`);
     },
 
-    searchMovies: (keyword: string, page = 1, limit = 24) => {
+    searchMovies: (keyword: string, page = 1, limit = 25) => {
         return fetch<MovieListResponse>('/v1/api/tim-kiem', { keyword, page, limit });
     },
 
-    getMoviesByCategory: (slug: string, page = 1, limit = 24) => {
+    getMoviesByCategory: (slug: string, page = 1, limit = 25) => {
         return fetch<MovieListResponse>(`/v1/api/the-loai/${slug}`, { page, limit });
     },
 
-    getMoviesByCountry: (slug: string, page = 1, limit = 24) => {
+    getMoviesByCountry: (slug: string, page = 1, limit = 25) => {
         return fetch<MovieListResponse>(`/v1/api/quoc-gia/${slug}`, { page, limit });
     },
 
-    getMoviesByYear: (year: string, page = 1, limit = 24) => {
+    getMoviesByYear: (year: string, page = 1, limit = 25) => {
         return fetch<MovieListResponse>(`/v1/api/nam-phat-hanh/${year}`, { page, limit });
     },
 
-    getNewMovies: (page = 1, limit = 24) => {
+    getNewMovies: (page = 1, limit = 25) => {
         return fetch<MovieListResponse>('/v1/api/danh-sach/phim-moi', { page, limit });
     },
 
-    getSeriesMovies: (page = 1, limit = 24) => {
+    getSeriesMovies: (page = 1, limit = 25) => {
         return fetch<MovieListResponse>('/v1/api/danh-sach/phim-bo', { page, limit });
     },
 
-    getSingleMovies: (page = 1, limit = 24) => {
+    getSingleMovies: (page = 1, limit = 25) => {
         return fetch<MovieListResponse>('/v1/api/danh-sach/phim-le', { page, limit });
     },
 
-    CartoonMovies: (page = 1, limit = 24) => {
+    CartoonMovies: (page = 1, limit = 25) => {
         return fetch<MovieListResponse>('/v1/api/danh-sach/hoat-hinh', { page, limit });
     },
 
-    TvShows: (page = 1, limit = 24) => {
+    TvShows: (page = 1, limit = 25) => {
         return fetch<MovieListResponse>('/v1/api/danh-sach/tv-shows', { page, limit });
     },
 
     // Metadata endpoints
     getCategories: () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return fetch<{ items: any[] }>('/v1/api/the-loai');
     },
 
     getCountries: () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return fetch<{ items: any[] }>('/v1/api/quoc-gia');
     },
 
     getYears: () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return fetch<{ items: any[] }>('/v1/api/nam-phat-hanh');
     },
 };

@@ -1,16 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { HomeIcon, RectangleStackIcon, FilmIcon, HeartIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { HomeIcon as HomeSolid, RectangleStackIcon as RectangleStackSolid, FilmIcon as FilmSolid, HeartIcon as HeartSolid, MagnifyingGlassIcon as MagnifyingGlassSolid } from '@heroicons/react/24/solid';
+import { Suspense } from 'react';
 
-export default function BottomNav() {
+function BottomNavContent() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const countryParam = searchParams.get('country');
 
   const navItems = [
     { name: 'Trang Chủ', href: '/', icon: HomeIcon, activeIcon: HomeSolid },
-    { name: 'Phim Bộ', href: '/danh-sach/phim-bo', icon: RectangleStackIcon, activeIcon: RectangleStackSolid },
+    { name: 'HHTQ', href: '/danh-sach/hoat-hinh?country=trung-quoc', icon: RectangleStackIcon, activeIcon: RectangleStackSolid },
     { name: 'Phim Lẻ', href: '/danh-sach/phim-le', icon: FilmIcon, activeIcon: FilmSolid },
     { name: 'Yêu Thích', href: '/yeu-thich', icon: HeartIcon, activeIcon: HeartSolid },
     { name: 'Tìm Kiếm', href: '/tim-kiem', icon: MagnifyingGlassIcon, activeIcon: MagnifyingGlassSolid },
@@ -18,15 +21,21 @@ export default function BottomNav() {
 
   const handleVibrate = () => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
-        navigator.vibrate(10); // Haptic feedback (10ms vibration)
+        navigator.vibrate(10); 
     }
   };
 
   return (
-    <div className="fixed bottom-0 left-0 w-full z-[999] md:hidden bg-[--nav-bg] backdrop-blur-md border-t border-[--nav-border] pb-safe transition-colors duration-300">
+    <div className="fixed bottom-0 left-0 w-full lg:hidden bg-black border-t border-gray-800 transition-all duration-300 shadow-2xl pb-safe z-50">
       <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          let isActive = pathname === item.href;
+          
+          // Special handling for HHTQ which uses query params
+          if (item.name === 'HHTQ') {
+            isActive = pathname === '/danh-sach/hoat-hinh' && countryParam === 'trung-quoc';
+          }
+
           const Icon = isActive ? item.activeIcon : item.icon;
 
           return (
@@ -45,5 +54,13 @@ export default function BottomNav() {
         })}
       </div>
     </div>
+  );
+}
+
+export default function BottomNav() {
+  return (
+    <Suspense fallback={<div className="fixed bottom-0 left-0 w-full h-16 bg-black border-t border-gray-800 lg:hidden z-50" />}>
+      <BottomNavContent />
+    </Suspense>
   );
 }

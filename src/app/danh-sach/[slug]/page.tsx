@@ -22,7 +22,7 @@ export default async function ListPage({ params, searchParams }: Props) {
   const slug = params.slug;
 
   try {
-    const data = await movieApi.getMovieList(slug, page);
+    const data = await movieApi.getMovieList(slug, page, 25, searchParams);
     const movies = data.data.items;
     const pagination = data.data.params.pagination;
 
@@ -47,7 +47,7 @@ export default async function ListPage({ params, searchParams }: Props) {
         />
       </div>
     );
-  } catch (error) {
+  } catch {
     return (
        <div className="min-h-screen flex flex-col items-center justify-center text-white p-4 text-center">
          <h1 className="text-2xl font-bold mb-2">Không tìm thấy danh sách</h1>

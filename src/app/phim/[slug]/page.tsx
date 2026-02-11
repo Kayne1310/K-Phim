@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         images: [`${process.env.NEXT_PUBLIC_IMAGE_URL}${movie.thumb_url}`],
       },
     };
-  } catch (error) {
+  } catch {
     return {
       title: 'Phim không tìm thấy | K-Phim',
     };
@@ -55,7 +55,7 @@ export default async function MovieDetailPage({ params }: Props) {
         </div>
       </div>
     );
-  } catch (error) {
+  } catch {
     return (
       <div className="min-h-screen flex items-center justify-center text-white">
         <div className="text-center">

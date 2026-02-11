@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="w-full py-8 px-4 md:px-12 bg-black/80 text-center text-text-secondary text-sm mt-auto">
+    <footer className="w-full py-8 px-4 md:px-12 bg-black/80 text-center text-text-secondary text-sm mt-auto pb-32 md:pb-8">
       <p>
         © {new Date().getFullYear()} <span className="text-accent font-bold">K-Phim</span>. All rights reserved.
       </p>

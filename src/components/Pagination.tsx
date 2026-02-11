@@ -3,13 +3,14 @@
 import Link from 'next/link';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
 }
 
-export default function Pagination({ currentPage, totalPages }: PaginationProps) {
+function PaginationContent({ currentPage, totalPages }: PaginationProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -75,5 +76,13 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
         <ChevronRightIcon className="w-5 h-5" />
       </Link>
     </div>
+  );
+}
+
+export default function Pagination(props: PaginationProps) {
+  return (
+    <Suspense fallback={null}>
+      <PaginationContent {...props} />
+    </Suspense>
   );
 }

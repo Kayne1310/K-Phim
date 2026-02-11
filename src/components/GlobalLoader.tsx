@@ -12,7 +12,7 @@ export default function GlobalLoader() {
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#141414] transition-opacity duration-500">
             <div className="flex flex-col items-center">
                 <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                <div className="text-red-500 font-bold text-xl tracking-widest animate-pulse">K-PHIM</div>
+                <div className="text-red-500 font-bold text-xl tracking-widest animate-pulse">K-Phim</div>
             </div>
         </div>
     );

@@ -2,14 +2,14 @@
 
 import { movieApi } from '@/service/api';
 import { Movie } from '@/types/movie';
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MagnifyingGlassIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 
-export default function Header() {
-  const [isScrolled, setIsScrolled] = useState(false);
+function HeaderContent() {
+  // const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Movie[]>([]);
@@ -17,20 +17,9 @@ export default function Header() {
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const countryParam = searchParams.get('country');
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 0) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-  
   // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -77,7 +66,7 @@ export default function Header() {
 
   const navLinks = [
     { name: 'Trang Chủ', href: '/' },
-    { name: 'Phim Bộ', href: '/danh-sach/phim-bo' },
+    { name: 'HHTQ', href: '/danh-sach/hoat-hinh?country=trung-quoc' },
     { name: 'Phim Lẻ', href: '/danh-sach/phim-le' },
     { name: 'Hoạt Hình', href: '/danh-sach/hoat-hinh' },
     { name: 'TV Shows', href: '/danh-sach/tv-shows' },
@@ -86,29 +75,34 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 w-full z-50 transition-colors duration-500 ${
-        isScrolled ? 'bg-bg-primary shadow-md' : 'bg-gradient-to-b from-black/80 to-transparent'
-      }`}
+      className={`fixed top-0 w-full z-50 transition-colors duration-500 bg-black/90 backdrop-blur-md shadow-md`}
     >
       <div className="container mx-auto px-4 md:px-12 h-16 flex items-center justify-between">
         {/* Logo & Desktop Nav */}
         <div className="flex items-center gap-8">
           <Link href="/" className="text-accent text-2xl font-bold tracking-tighter hover:text-accent-hover transition-colors">
-            K-PHIM
+            K-Phim
           </Link>
           
           <nav className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
+            {navLinks.map((link) => {
+              const isActive = link.name === 'HHTQ' 
+                  ? pathname === '/danh-sach/hoat-hinh' && countryParam === 'trung-quoc'
+                  : link.name === 'Hoạt Hình'
+                      ? pathname === '/danh-sach/hoat-hinh' && !countryParam
+                      : pathname === link.href;
+
+              return (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`text-sm font-medium transition-colors hover:text-gray-300 ${
-                  pathname === link.href ? 'text-white font-bold' : 'text-gray-400'
+                  isActive ? 'text-white font-bold' : 'text-gray-400'
                 }`}
               >
                 {link.name}
               </Link>
-            ))}
+            )})}
           </nav>
         </div>
 
@@ -174,21 +168,21 @@ export default function Header() {
                        </>
                    ) : (
                       <div className="p-4 text-center text-gray-400 text-sm">
-                         Không tìm thấy kết quả cho "{searchQuery}"
+                          Không tìm thấy kết quả cho &quot;{searchQuery}&quot;
                       </div>
                    )}
                 </div>
              )}
            </div>
            
-           {/* Mobile Search Icon */}
-           <Link href="/tim-kiem" className="md:hidden text-white">
+           {/* Mobile Search Icon - Hidden as per request */}
+           <Link href="/tim-kiem" className="hidden md:hidden text-white">
               <MagnifyingGlassIcon className="w-6 h-6" />
            </Link>
 
-           {/* Mobile Menu Button */}
+           {/* Mobile Menu Button - Hidden as per request */}
            <button 
-             className="md:hidden text-white"
+             className="hidden md:hidden text-white"
              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
            >
              {isMobileMenuOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
@@ -213,5 +207,13 @@ export default function Header() {
         </div>
       )}
     </header>
+  );
+}
+
+export default function Header() {
+  return (
+    <Suspense fallback={<div className="h-16 bg-black/90 fixed top-0 w-full z-50"></div>}>
+      <HeaderContent />
+    </Suspense>
   );
 }

@@ -20,8 +20,10 @@ export const movieApi = {
         return fetchApi<ApiResponse<MovieListResponse>>('/v1/api/home');
     },
 
-    getMovieList: async (slug: string, page = 1, limit = 25) => {
-        return fetchApi<ApiResponse<MovieListResponse>>(`/v1/api/danh-sach/${slug}?page=${page}&limit=${limit}`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getMovieList: async (slug: string, page = 1, limit = 25, params: Record<string, any> = {}) => {
+        const queryString = new URLSearchParams(params).toString();
+        return fetchApi<ApiResponse<MovieListResponse>>(`/v1/api/danh-sach/${slug}?page=${page}&limit=${limit}&${queryString}`);
     },
 
     getMovieDetail: async (slug: string) => {
@@ -82,6 +84,7 @@ export const movieApi = {
     },
 
     getYears: async () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return fetchApi<ApiResponse<any[]>>('/v1/api/nam-phat-hanh');
     },
 };

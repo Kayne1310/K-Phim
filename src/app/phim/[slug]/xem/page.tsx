@@ -65,7 +65,7 @@ export default async function WatchPage({ params, searchParams }: Props) {
         </div>
       </div>
     );
-  } catch (error) {
+  } catch {
     return (
       <div className="min-h-screen flex items-center justify-center text-white">
         Không tìm thấy phim hoặc tập phim.
