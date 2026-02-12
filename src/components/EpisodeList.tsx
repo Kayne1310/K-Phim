@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Movie } from '@/types/movie';
 
 
@@ -10,6 +11,8 @@ interface EpisodeListProps {
 }
 
 export default function EpisodeList({ movie, currentEpisodeSlug }: EpisodeListProps) {
+  const router = useRouter();
+
   if (!movie.episodes || movie.episodes.length === 0) return null;
 
   return (
@@ -32,8 +35,7 @@ export default function EpisodeList({ movie, currentEpisodeSlug }: EpisodeListPr
                     key={ep.slug}
                     onClick={() => {
                       const url = `/phim/${movie.slug}/xem?server=${encodeURIComponent(server.server_name)}&slug=${ep.slug}`;
-                      // Force hard navigation if soft fails? No, try soft first.
-                      window.location.href = url;
+                      router.push(url);
                     }}
                     className={`text-center py-2 px-1 rounded text-sm font-medium transition-colors border cursor-pointer ${isActive
                       ? 'bg-accent text-white border-accent'
