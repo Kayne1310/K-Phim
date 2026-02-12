@@ -9,7 +9,7 @@ interface EpisodeListProps {
   currentServerName?: string;
 }
 
-export default function EpisodeList({ movie, currentEpisodeSlug, currentServerName }: EpisodeListProps) {
+export default function EpisodeList({ movie, currentEpisodeSlug }: EpisodeListProps) {
   if (!movie.episodes || movie.episodes.length === 0) return null;
 
   return (

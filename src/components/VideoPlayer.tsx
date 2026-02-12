@@ -72,7 +72,7 @@ export default function VideoPlayer({ embedUrl, movie, currentEpisode, serverNam
           const parsed = JSON.parse(data);
           currentTime = parsed.position || parsed.currentTime || 0;
           duration = parsed.duration || 0;
-        } catch (e) { }
+        } catch { }
       }
 
       if (currentTime > 0) {

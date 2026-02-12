@@ -49,11 +49,11 @@ export default async function WatchPage({ params, searchParams }: Props) {
           </h2>
         </div>
 
-        {/* <HistoryTracker
+        <HistoryTracker
           movieId={movie._id}
           movieSlug={movie.slug}
           hasSlugParam={!!searchParams.slug}
-        /> */}
+        />
 
         <VideoPlayer
           embedUrl={currentEpisode.link_embed}

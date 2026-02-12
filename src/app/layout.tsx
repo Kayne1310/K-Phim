@@ -37,7 +37,10 @@ export default function RootLayout({
           <Footer />
         </ReduxProvider>
         <BottomNav />
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-MNT288XCHD"></script>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-MNT288XCHD"
+          strategy="afterInteractive"
+        />
         <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
