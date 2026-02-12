@@ -24,7 +24,7 @@ export default function EpisodeList({ movie, currentEpisodeSlug, currentServerNa
             </h4>
             
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
-              {server.server_data.map((ep) => {
+              {[...server.server_data].reverse().map((ep) => {
                  const isActive = currentEpisodeSlug === ep.slug && (currentServerName ? currentServerName === server.server_name : true);
                  
                  return (

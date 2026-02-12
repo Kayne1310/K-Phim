@@ -45,7 +45,7 @@ export default function MovieRow({ title, movies, linkTo }: MovieRowProps) {
           1024: { slidesPerView: 5, spaceBetween: 20 },
           1280: { slidesPerView: 6, spaceBetween: 20 },
         }}
-        className="movie-swiper !overflow-visible"
+        className="movie-swiper"
       >
         {movies.map((movie) => (
           <SwiperSlide key={movie._id} className="!h-auto">

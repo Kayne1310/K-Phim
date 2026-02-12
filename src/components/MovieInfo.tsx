@@ -100,7 +100,7 @@ export default function MovieInfo({ movie }: MovieInfoProps) {
           </div>
 
           {/* Meta Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300 mt-6 bg-white/5 p-4 rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300 mt-6 bg-white/5 p-4 rounded-lg text-left">
              <div>
                <span className="text-gray-500 block">Đạo diễn:</span>
                <span className="text-white">{movie.director?.join(', ') || 'N/A'}</span>
@@ -135,7 +135,7 @@ export default function MovieInfo({ movie }: MovieInfoProps) {
           <div className="mt-8">
             <h3 className="text-xl font-bold text-white mb-2">Nội dung phim</h3>
             <div 
-              className="text-gray-300 leading-relaxed text-sm md:text-base space-y-2"
+              className="text-gray-300 leading-relaxed text-sm md:text-base space-y-2 text-left"
               dangerouslySetInnerHTML={{ __html: movie.content }} 
             />
           </div>
