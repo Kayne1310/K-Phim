@@ -1,6 +1,7 @@
 import { movieApi } from '@/service/api';
 import VideoPlayer from '@/components/VideoPlayer';
 import EpisodeList from '@/components/EpisodeList';
+import HistoryTracker from '@/components/HistoryTracker';
 import { Metadata } from 'next';
 
 interface Props {
@@ -26,12 +27,12 @@ export default async function WatchPage({ params, searchParams }: Props) {
     // Determine current server and episode
     const episodes = movie.episodes || [];
     if (episodes.length === 0) {
-       return <div className="text-center py-20 text-white">Phim chưa có tập nào.</div>;
+      return <div className="text-center py-20 text-white">Phim chưa có tập nào.</div>;
     }
 
     const currentServerName = searchParams.server || episodes[0].server_name;
     const currentServer = episodes.find(s => s.server_name === currentServerName) || episodes[0];
-    
+
     // Find episode by slug or index? Api returns slug like 'tap-1'.
     // link_embed is in episode object.
     const currentEpisodeSlug = searchParams.slug || currentServer.server_data[0].slug;
@@ -40,28 +41,39 @@ export default async function WatchPage({ params, searchParams }: Props) {
     return (
       <div className="container mx-auto px-4 md:px-12 py-8 min-h-screen">
         <div className="mb-6">
-           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-             Xem phim: <span className="text-accent">{movie.name}</span>
-           </h1>
-           <h2 className="text-lg text-gray-400">
-             {movie.origin_name} - {currentEpisode.name}
-           </h2>
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+            Xem phim: <span className="text-accent">{movie.name}</span>
+          </h1>
+          <h2 className="text-lg text-gray-400">
+            {movie.origin_name} - {currentEpisode.name}
+          </h2>
         </div>
 
-        <VideoPlayer embedUrl={currentEpisode.link_embed} />
+        {/* <HistoryTracker
+          movieId={movie._id}
+          movieSlug={movie.slug}
+          hasSlugParam={!!searchParams.slug}
+        /> */}
 
-        <EpisodeList 
-          movie={movie} 
-          currentEpisodeSlug={currentEpisode.slug} 
-          currentServerName={currentServer.server_name} 
+        <VideoPlayer
+          embedUrl={currentEpisode.link_embed}
+          movie={movie}
+          currentEpisode={currentEpisode}
+          serverName={currentServer.server_name}
         />
-        
+
+        <EpisodeList
+          movie={movie}
+          currentEpisodeSlug={currentEpisode.slug}
+          currentServerName={currentServer.server_name}
+        />
+
         <div className="mt-8 bg-bg-secondary p-6 rounded-lg">
-           <h3 className="text-xl font-bold text-white mb-4">Thông tin phim</h3>
-           <div 
-              className="text-gray-300 text-sm leading-relaxed" 
-              dangerouslySetInnerHTML={{ __html: movie.content }} 
-           />
+          <h3 className="text-xl font-bold text-white mb-4">Thông tin phim</h3>
+          <div
+            className="text-gray-300 text-sm leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: movie.content }}
+          />
         </div>
       </div>
     );

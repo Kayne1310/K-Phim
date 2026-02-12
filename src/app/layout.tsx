@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ReduxProvider from '@/store/provider';
 import BottomNav from '@/components/BottomNav';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -30,12 +31,22 @@ export default function RootLayout({
       <body className={inter.className}>
         <ReduxProvider>
           <Header />
-            <main className="min-h-screen pt-16 bg-[--bg-primary] text-[--text-primary] pb-24 md:pb-0 transition-colors duration-300">
-              {children}
-            </main>
+          <main className="min-h-screen pt-16 bg-[--bg-primary] text-[--text-primary] pb-24 md:pb-0 transition-colors duration-300">
+            {children}
+          </main>
           <Footer />
         </ReduxProvider>
         <BottomNav />
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-MNT288XCHD"></script>
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-MNT288XCHD');
+          `}
+        </Script>
       </body>
     </html>
   );
