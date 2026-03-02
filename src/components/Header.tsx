@@ -3,7 +3,7 @@
 import { movieApi } from '@/service/api';
 import { Movie } from '@/types/movie';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MagnifyingGlassIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
@@ -15,10 +15,18 @@ function HeaderContent() {
   const [searchResults, setSearchResults] = useState<Movie[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const countryParam = searchParams.get('country');
+
+  // Cleanup blur timeout on unmount to prevent setState on unmounted component
+  useEffect(() => {
+    return () => {
+      if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
+    };
+  }, []);
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -27,26 +35,34 @@ function HeaderContent() {
 
   // Debounce search effect
   useEffect(() => {
+    let ignore = false; // prevent setState on unmounted component
     const delayDebounceFn = setTimeout(async () => {
       if (searchQuery.trim().length >= 2) {
         setIsSearching(true);
         setShowDropdown(true);
         try {
           const res = await movieApi.searchMovies(searchQuery, 1, 5);
-          setSearchResults(res.data.items || []);
+          if (!ignore) setSearchResults(res.data.items || []);
         } catch (error) {
-          console.error("Search error", error);
-          setSearchResults([]);
+          if (!ignore) {
+            console.error("Search error", error);
+            setSearchResults([]);
+          }
         } finally {
-          setIsSearching(false);
+          if (!ignore) setIsSearching(false);
         }
       } else {
-        setSearchResults([]);
-        setShowDropdown(false);
+        if (!ignore) {
+          setSearchResults([]);
+          setShowDropdown(false);
+        }
       }
     }, 500);
 
-    return () => clearTimeout(delayDebounceFn);
+    return () => {
+      ignore = true;
+      clearTimeout(delayDebounceFn);
+    };
   }, [searchQuery]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -121,7 +137,7 @@ function HeaderContent() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => { if (searchResults.length > 0) setShowDropdown(true); }}
-                onBlur={() => setTimeout(() => setShowDropdown(false), 200)} // Delay to allow click
+                onBlur={() => { blurTimeoutRef.current = setTimeout(() => setShowDropdown(false), 200); }} // Delay to allow click
               />
               {searchQuery && (
                 <button type="button" onClick={() => { setSearchQuery(''); setSearchResults([]); }} className="text-gray-500 hover:text-white">

@@ -21,6 +21,7 @@ interface VideoPlayerProps {
 
 export default function VideoPlayer({ embedUrl, movie, currentEpisode, serverName }: VideoPlayerProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const lastSaveTime = useRef<number>(0);
   const { saveToHistory, getHistoryForMovie, isLoaded } = useWatchHistory();
   const [initialTime, setInitialTime] = useState<number>(0);
   const [hasRestoredTime, setHasRestoredTime] = useState(false);
@@ -103,8 +104,7 @@ export default function VideoPlayer({ embedUrl, movie, currentEpisode, serverNam
       }
     };
 
-    // Ref for throttling
-    const lastSaveTime = { current: 0 };
+    // Ref for throttling is now at component level (lastSaveTime)
 
     window.addEventListener('message', handleMessage);
 
